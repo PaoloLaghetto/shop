@@ -1,7 +1,7 @@
-export function ShopPage() {
+export function CartPage() {
     return (
       <div>
-          <h1 className="title">SHOP</h1>
+          <h1 className="title">CART</h1>
           ...content here
       </div>
     );
