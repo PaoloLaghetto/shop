@@ -9,7 +9,7 @@ import {
   ShopPage,
   ThanksPage,
 } from "./pages";
-import { NavBar } from "./shared";
+import { NavBar } from "@/shared/index";
 
 function App() {
   return (
