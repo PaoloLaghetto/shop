@@ -1,10 +1,19 @@
 import logo from "../../../assets/laptop.png";
 import { NavLink } from "react-router-dom";
+import { CartPanel } from "./CartPanel.tsx";
+import {
+  selectTotalCartItems,
+  useCart,
+  useCartPanel,
+} from "../../../services/cart";
 
 const isActive = (obj: { isActive: boolean }) =>
   obj.isActive ? "text-xl text-sky-400 font-bold" : "text-xl text-white";
 
 export function NavBar() {
+  const isCartPanelOpened = useCartPanel((state) => state.open);
+  const toggleCartPanel = useCartPanel((state) => state.toggle);
+  const totalCartItems = useCart(selectTotalCartItems);
   return (
     <div className="fixed z-10 top-0 left-0 right-0 shadow-2xl">
       <div className="flex items-center justify-between h-20 bg-slate-900 text-white shadow-2xl">
@@ -18,8 +27,13 @@ export function NavBar() {
 
         {/* Cart Button Badge */}
         <div>
-          <button className="btn accent lg">Cart: 0</button>
+          <button className="btn accent lg" onClick={toggleCartPanel}>
+            Cart: {totalCartItems}
+          </button>
         </div>
+
+        {/* Cart Panel */}
+        {isCartPanelOpened && <CartPanel />}
 
         {/* Login / CMS Logout buttons */}
         <div className="fixed bottom-2 right-2 text-white p-5">

@@ -3,12 +3,17 @@ import { useEffect, useState } from "react";
 import { pb } from "../../pocketbase.ts";
 import { ProductCard } from "./components/ProductCard.tsx";
 import { ServerError, Spinner } from "../../shared";
+import { useCartPanel } from "../../services/cart";
+import { useCart } from "../../services/cart/useCart.ts";
 
 export function ShopPage() {
   // hook useState per aggiornare componente ogni volta che lo stato cambia
   const [products, setProducts] = useState<Product[]>([]);
   const [pending, setPending] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
+
+  const openCartPanel = useCartPanel((state) => state.openOverlay);
+  const addToCart = useCart((state) => state.addToCart);
 
   // hook useEffect con [] viene eseguito solo una volta quando viene instanziato il componente
   useEffect(() => {
@@ -23,9 +28,10 @@ export function ShopPage() {
       .finally(() => setPending(false));
   }
 
-  function addToCart(p: Partial<Product>) {
-    console.log(p);
-  }
+  /*  function addToCart(p: Partial<Product>) {
+    openCartPanel();
+    addToCart();
+  }*/
 
   return (
     <div>
@@ -37,7 +43,16 @@ export function ShopPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-16">
         {products.map((p) => {
-          return <ProductCard key={p.id} product={p} onAddToCart={addToCart} />;
+          return (
+            <ProductCard
+              key={p.id}
+              product={p}
+              onAddToCart={() => {
+                openCartPanel();
+                addToCart(p);
+              }}
+            />
+          );
         })}
       </div>
     </div>
