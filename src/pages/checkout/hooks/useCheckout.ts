@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   selectCartList,
@@ -6,11 +6,12 @@ import {
   useCart,
 } from "../../../services/cart";
 import { OrderForm } from "../../../model/order-form.ts";
+import { useOrdersService } from "../../../services/orders";
+import { ClientResponseError } from "pocketbase";
 
 export const EMAIL_REGEX =
   /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-// questa funzione è un hook personalizzato che gestisce la logica della pagina di checkout, deve inziare con use
 export function useCheckout() {
   const navigate = useNavigate();
   const [user, setUser] = useState({ name: "", email: "" });
@@ -19,6 +20,7 @@ export function useCheckout() {
   const totalCartCost = useCart(selectTotalCartCost);
   const clearCart = useCart((state) => state.clearCart);
 
+  const { state, addOrder } = useOrdersService();
   const order = useCart(selectCartList);
 
   function changeHandler(e: ChangeEvent<HTMLInputElement>) {
@@ -36,10 +38,13 @@ export function useCheckout() {
       status: "pending",
       total: totalCartCost,
     };
-    console.log(orderInfo);
 
-    clearCart();
-    navigate("/thankyou");
+    addOrder(orderInfo).then((res) => {
+      if (!(res instanceof ClientResponseError)) {
+        clearCart();
+        navigate("/thankyou");
+      }
+    });
   }
 
   const isNameValid = user.name.length;
@@ -59,5 +64,6 @@ export function useCheckout() {
     user,
     dirty,
     totalCartCost,
+    error: state.error,
   };
 }
